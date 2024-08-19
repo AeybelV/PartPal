@@ -24,4 +24,22 @@ To get started with PartPal, you can deploy it to the cloud or run it locally. F
    cd PartPal
    # add more shit here
    ```
-   
+## EDA Plugins
+
+PartPal offers plugin for popular EDA tools to stresmline BOM management process.
+
+## Documentation
+
+For comprehensive guides on using snd extending PartPal, refer to the docs. This includes API documentstion, plugin integration, and examples.
+
+## Contributing
+
+Pls contribute
+
+## License
+
+Relessed under the GNU GPL. free as in free yo
+
+## Contact
+
+For questions or feedback feel free to open snd issue or reach out via [email](mailto:aeybelvarghese@gmail.com)
