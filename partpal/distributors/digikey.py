@@ -3,10 +3,13 @@ import json
 import urllib.parse
 from typing import Tuple, Dict, Any
 
+from .distributors_base import Distributor
 
-class DigiKeyDistributor:
+
+class DigiKeyDistributor(Distributor):
     # TODO: Replace this with a config manager
     def __init__(self, client_id, client_secret, sandbox=False) -> None:
+        super().__init__(name="DigiKey")
         self.client_id = client_id
         self.client_secret = client_secret
         # TODO: Support in future for different locales and currencies

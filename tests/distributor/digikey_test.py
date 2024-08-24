@@ -12,6 +12,10 @@ def test_get_oauth_token_success():
         config["distributors"]["digikey"]["client_secret"],
         config["distributors"]["digikey"]["sandbox"],
     )
+
+    # Make sure the Distributor is correct
+    assert digikey.name == "DigiKey"
+
     status = digikey.get_access_token()
 
     # Check if a token was able to be requested
@@ -28,6 +32,10 @@ def test_get_product_details_digikeypn():
         config["distributors"]["digikey"]["client_secret"],
         config["distributors"]["digikey"]["sandbox"],
     )
+
+    # Make sure the Distributor is correct
+    assert digikey.name == "DigiKey"
+
     status = digikey.get_access_token()
 
     # Check if a token was able to be requested
@@ -58,6 +66,10 @@ def test_get_product_details_mfrpn():
         config["distributors"]["digikey"]["client_secret"],
         config["distributors"]["digikey"]["sandbox"],
     )
+
+    # Make sure the Distributor is correct
+    assert digikey.name == "DigiKey"
+
     status = digikey.get_access_token()
 
     # Check if a token was able to be requested
