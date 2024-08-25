@@ -1,0 +1,12 @@
+{
+  "distributors": {
+    "digikey": {
+      "client_id": "",
+      "client_secret": "",
+      "sandbox": false
+    },
+    "mouser": {
+      "api_key": ""
+    }
+  }
+}
