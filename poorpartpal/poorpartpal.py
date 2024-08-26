@@ -1,6 +1,12 @@
 import argparse
 import npyscreen
+import concurrent.futures
+
+import partpal.core.config as pp_config
 from partpal.core.bom_parser import parse_bom_csv
+
+# TODO: Use the Distributor interface instead of specific ones
+from partpal.distributors.digikey import DigiKeyDistributor
 
 
 def parse_args():
@@ -59,10 +65,12 @@ class BOMView(npyscreen.FormBaseNew):
         )
         self.table_pane.values = self.bom_to_grid_values(self.bom_data)
 
+        self.total_cost = self.calculate_total_cost()
+
         # Bottom pane: Keyboard shortcut hints
         self.hint_pane = self.add(
             npyscreen.FixedText,
-            value="Shortcuts: Ctrl+T = Table, Ctrl+A = Actions, Ctrl+Q = Quit",
+            value=f"Shortcuts: Ctrl+T = Table, Ctrl+A = Actions, Ctrl+Q = Quit | Total Cost: {self.total_cost:.4f} USD",
             editable=False,
             rely=int(0.95 * screen_max_y),
             relx=2,
@@ -76,6 +84,18 @@ class BOMView(npyscreen.FormBaseNew):
                 "^Q": self.exit_application,  # Ctrl+Q to exit
             }
         )
+
+    def calculate_total_cost(self):
+        # Calculate the total cost from the BOM data
+        total_cost = 0.0
+        for component in self.bom_data:
+            try:
+                total_cost += float(component.get("cost", 0.0)) * int(
+                    component.get("quantity", 1)
+                )
+            except ValueError:
+                continue  # Skip if there's an issue with the data format
+        return total_cost
 
     def switch_to_table(self, *args):
         self.set_editing(self.table_pane)
@@ -108,8 +128,48 @@ class BOMView(npyscreen.FormBaseNew):
         else:
             pass
 
+    def update_component(self, component, distributor):
+        status, response = distributor.get_product_information(component["part_number"])
+        if status == True:
+            cost = response["Product"]["UnitPrice"]
+            component["distributor"] = distributor.name
+            component["cost"] = cost
+
+        return component
+
     def optimize_bom(self):
+
+        # TODO: Change to be general Distributor, not just digikey
+        config = pp_config.load_config()
+        digikey = DigiKeyDistributor(
+            config["distributors"]["digikey"]["client_id"],
+            config["distributors"]["digikey"]["client_secret"],
+            config["distributors"]["digikey"]["sandbox"],
+        )
+
+        auth_status = digikey.get_access_token()
+
         # Optimization logic can go here
+
+        # Creates a threadpool, each component get its own thread to query the distributor
+        # Meaning API requests are done in parallel, they will update the component and bom data
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            # TODO: Change to be general Distributor, not just digikey
+            self.bom_data = list(
+                executor.map(lambda c: self.update_component(c, digikey), self.bom_data)
+            )
+
+        # After the optimization, refresh the table view
+        self.table_pane.values = self.bom_to_grid_values(self.parentApp.bom_data)
+        self.table_pane.update()
+
+        # Recalculate the total cost after optimization
+        self.total_cost = self.calculate_total_cost()
+
+        # Update the hint pane with the new total cost
+        self.hint_pane.value = f"Shortcuts: Ctrl+T = Table, Ctrl+A = Actions, Ctrl+Q = Quit | Total Cost: {self.total_cost:.4f} USD"
+        self.hint_pane.update()
+
         npyscreen.notify_confirm("Optimization complete!", title="Optimize")
 
         # Reset the actions pane selection to allow re-execution
