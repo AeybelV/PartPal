@@ -50,10 +50,7 @@ def test_get_product_details_digikeypn():
     assert status == True
 
     # Check the Product Desciption is correct to make sure the query worked
-    assert (
-        response["Product"]["Description"]["ProductDescription"]
-        == "IC MCU 32BIT 16KB FLASH 28UFQFPN"
-    )
+    assert response["description"] == "IC MCU 32BIT 16KB FLASH 28UFQFPN"
 
     print(response)
 
@@ -84,9 +81,6 @@ def test_get_product_details_mfrpn():
     assert status == True
 
     # Check the Product Desciption is correct to make sure the query worked
-    assert (
-        response["Product"]["Description"]["ProductDescription"]
-        == "IC MCU 32BIT 16KB FLASH 28UFQFPN"
-    )
+    assert response["description"] == "IC MCU 32BIT 16KB FLASH 28UFQFPN"
 
     print(response)

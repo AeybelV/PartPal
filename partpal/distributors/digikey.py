@@ -57,7 +57,24 @@ class DigiKeyDistributor(Distributor):
 
         response = requests.get(url, headers=url_header)
 
+        json_response = response.json()
+
+        # TODO: Make this a Product info class
         if response.status_code == 200:
-            return True, response.json()
+            product_data = {
+                "partNumber": json_response["Product"]["ProductVariations"][0][
+                    "DigiKeyProductNumber"
+                ],
+                "mfrPartNumber": json_response["Product"]["ManufacturerProductNumber"],
+                "manufacturer": json_response["Product"]["Manufacturer"]["Name"],
+                "unitPrice": json_response["Product"]["UnitPrice"],
+                "availability": json_response["Product"]["QuantityAvailable"],
+                "description": json_response["Product"]["Description"][
+                    "ProductDescription"
+                ],
+                "datasheet": json_response["Product"]["DatasheetUrl"],
+                "productUrl": json_response["Product"]["ProductUrl"],
+            }
+            return True, product_data
         else:
-            return False, response.json()
+            return False, json_response
