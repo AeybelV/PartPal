@@ -54,6 +54,7 @@ def parse_bom_csv(file_path: str) -> BOM:
         A list of dictionaries, each representing a component in the BOM,
         with only the fields of interest.
     """
+
     with open(file_path, mode="r", newline="") as csvfile:
         reader = csv.DictReader(csvfile)
         normalized_headers: List[str] = [
@@ -63,11 +64,16 @@ def parse_bom_csv(file_path: str) -> BOM:
         # Create a list of dictionaries with normalized keys, filtered by FIELDS_OF_INTEREST
         bom: BOM = []
         for row in reader:
-            component: Component = {
-                normalized_headers[i]: row[header]
-                for i, header in enumerate(reader.fieldnames)
-                if normalized_headers[i] in FIELDS_OF_INTEREST
-            }
+            # Initialize a component dictionary with default empty values for fields of interest
+            component: Component = {field: "" for field in FIELDS_OF_INTEREST}
+
+            # Update the component dictionary with values from the row, if available
+            for i, header in enumerate(reader.fieldnames):
+                normalized_header = normalized_headers[i]
+                if normalized_header in FIELDS_OF_INTEREST:
+                    # TODO: Maybe check that the input isnt malformed, for exmaple make sure the cost is actually a float
+                    component[normalized_header] = row[header]
+
             bom.append(component)
 
     return bom

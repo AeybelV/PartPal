@@ -67,7 +67,7 @@ class DigiKeyDistributor(Distributor):
                 ],
                 "mfrPartNumber": json_response["Product"]["ManufacturerProductNumber"],
                 "manufacturer": json_response["Product"]["Manufacturer"]["Name"],
-                "unitPrice": json_response["Product"]["UnitPrice"],
+                "unitPrice": float(json_response["Product"]["UnitPrice"]),
                 "availability": json_response["Product"]["QuantityAvailable"],
                 "description": json_response["Product"]["Description"][
                     "ProductDescription"

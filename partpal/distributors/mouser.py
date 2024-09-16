@@ -33,7 +33,11 @@ class MouserDistributor(Distributor):
 
         json_response = response.json()
 
-        if response.status_code == 200:
+        if (
+            response.status_code == 200
+            and json_response["SearchResults"]
+            and json_response["SearchResults"]["NumberOfResult"] >= 1
+        ):
             product_data = {
                 "partNumber": json_response["SearchResults"]["Parts"][0][
                     "MouserPartNumber"
@@ -44,9 +48,11 @@ class MouserDistributor(Distributor):
                 "manufacturer": json_response["SearchResults"]["Parts"][0][
                     "Manufacturer"
                 ],
-                "unitPrice": json_response["SearchResults"]["Parts"][0]["PriceBreaks"][
-                    0
-                ]["Price"],
+                "unitPrice": float(
+                    json_response["SearchResults"]["Parts"][0]["PriceBreaks"][0][
+                        "Price"
+                    ][1:]
+                ),
                 "availability": json_response["SearchResults"]["Parts"][0][
                     "AvailabilityInStock"
                 ],
