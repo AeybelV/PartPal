@@ -33,10 +33,9 @@ def test_get_product_details_mouserpn():
 
     # Check the Product Desciption is correct to make sure the query worked
     assert (
-        response["Product"]["Description"]["ProductDescription"]
-        == "IC MCU 32BIT 16KB FLASH 28UFQFPN"
+        response["description"]
+        == "ARM Microcontrollers - MCU Mainstream Arm Cortex-M0+ MCU 16 Kbytes Flash 12 Kbytes RAM 48 MHz CPU 2x USART"
     )
-
     print(response)
 
 
@@ -57,8 +56,8 @@ def test_get_product_details_mfrpn():
 
     # Check the Product Desciption is correct to make sure the query worked
     assert (
-        response["Product"]["Description"]["ProductDescription"]
-        == "IC MCU 32BIT 16KB FLASH 28UFQFPN"
+        response["description"]
+        == "ARM Microcontrollers - MCU Mainstream Arm Cortex-M0+ MCU 16 Kbytes Flash 12 Kbytes RAM 48 MHz CPU 2x USART"
     )
 
     print(response)

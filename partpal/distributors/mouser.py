@@ -31,7 +31,33 @@ class MouserDistributor(Distributor):
         }
         response = requests.post(url, json=data)
 
+        json_response = response.json()
+
         if response.status_code == 200:
-            return True, response.json()
+            product_data = {
+                "partNumber": json_response["SearchResults"]["Parts"][0][
+                    "MouserPartNumber"
+                ],
+                "mfrPartNumber": json_response["SearchResults"]["Parts"][0][
+                    "ManufacturerPartNumber"
+                ],
+                "manufacturer": json_response["SearchResults"]["Parts"][0][
+                    "Manufacturer"
+                ],
+                "unitPrice": json_response["SearchResults"]["Parts"][0]["PriceBreaks"][
+                    0
+                ]["Price"],
+                "availability": json_response["SearchResults"]["Parts"][0][
+                    "AvailabilityInStock"
+                ],
+                "description": json_response["SearchResults"]["Parts"][0][
+                    "Description"
+                ],
+                "datasheet": json_response["SearchResults"]["Parts"][0]["DataSheetUrl"],
+                "productUrl": json_response["SearchResults"]["Parts"][0][
+                    "ProductDetailUrl"
+                ],
+            }
+            return True, product_data
         else:
-            return False, response.json()
+            return False, json_response
