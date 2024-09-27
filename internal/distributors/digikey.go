@@ -3,10 +3,9 @@ package distributors
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
-	// "strconv"
 	"strings"
 )
 
@@ -72,16 +71,14 @@ func (d *DigiKey) QueryPartNumber(partNumber string) (PartInfo, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Printf("Error making GET request: %v", err)
 		return PartInfo{}, fmt.Errorf("Error making GET request: %v", err)
-
 	}
 	defer resp.Body.Close()
 
 	// Read the response body
 	// Check if the request was successful
 	if resp.StatusCode != http.StatusOK {
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		return PartInfo{}, fmt.Errorf("Digikey API request failed with status %d: %s", resp.StatusCode, string(body))
 	}
 
@@ -151,7 +148,7 @@ func (d *DigiKey) authenticate() (string, error) {
 
 	// Check if the request was successful
 	if resp.StatusCode != http.StatusOK {
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		return "", fmt.Errorf("DigiKey API authentication failed with status %d: %s", resp.StatusCode, string(body))
 	}
 

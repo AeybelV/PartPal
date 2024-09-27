@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -60,7 +60,7 @@ func (m *Mouser) QueryPartNumber(partNumber string) (PartInfo, error) {
 
 	// Check if the request was successful
 	if resp.StatusCode != http.StatusOK {
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		return PartInfo{}, fmt.Errorf("Mouser API request failed with status %d: %s", resp.StatusCode, string(body))
 	}
 
