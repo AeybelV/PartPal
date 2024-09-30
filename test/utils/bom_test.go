@@ -67,12 +67,12 @@ func TestReadBOM(t *testing.T) {
 
 	// Define the expected result
 	expected := []distributors.PartInfo{
-		{PartNumber: "1234-5678", Description: "Resistor"},
-		{PartNumber: "9876-5432", Description: "Capacitor"},
+		{PartNumber: "1234-5678", Description: "Resistor", Quantity: 10},
+		{PartNumber: "9876-5432", Description: "Capacitor", Quantity: 5},
 	}
 
 	// Check if the result matches the expected output
-	if !reflect.DeepEqual(result, expected) {
+	if !reflect.DeepEqual(result.Components, expected) {
 		t.Errorf("ReadBOM result mismatch. Got: %v, Expected: %v", result, expected)
 	}
 }
@@ -100,4 +100,50 @@ func TestReadBOM_InvalidFileType(t *testing.T) {
 	if err == nil {
 		t.Error("Expected error for unsupported file type, but got none")
 	}
+}
+
+func TestOptimizeBom(t *testing.T) {
+	var err error
+	var config *utils.Config
+
+	// Load configuration from file
+	config, err = utils.LoadConfig("../../.partpal.json")
+	if err != nil {
+		panic("Failed to load configuration: " + err.Error())
+	}
+
+	digikey := &distributors.DigiKey{}
+	err = digikey.Initialize(config.Distributors.DigiKey.ClientID, config.Distributors.DigiKey.ClientSecret)
+	if err != nil {
+		t.Errorf("Recieved error when initializing Digikey, got %v", err)
+		return
+	}
+
+	mouser := &distributors.Mouser{}
+	err = mouser.Initialize(config.Distributors.Mouser.APIKey)
+	if err != nil {
+		t.Errorf("Recieved error when initializing Mouser, got %v", err)
+		return
+	}
+
+	// Example distributors implementing the Distributor interface
+	distributors := []distributors.Distributor{
+		mouser,
+		digikey,
+	}
+
+	bom, err := utils.ReadBOM("../bom.csv", "csv")
+	if err != nil {
+		t.Fatalf("ReadBOM returned an error: %v", err)
+	}
+
+	optimizedBOM, err := utils.OptimizeBOM(bom, distributors)
+	if err != nil {
+		t.Errorf("Error optimizing BOM: %v\n", err)
+		return
+	}
+
+	t.Logf("Optimized BOM: %+v\n", optimizedBOM.Components)
+	t.Logf("Optimized BOM Cost: $%.2f\n", optimizedBOM.TotalCost)
+	utils.ExportBOMToCSV(optimizedBOM, "optimized_bom.csv")
 }
